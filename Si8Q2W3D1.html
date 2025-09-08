@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>KS Lesson – Day 1 Interactive Coded Illustrations</title>
+  <meta name="color-scheme" content="light">
+  <style>
+    /* Body baseline (kept minimal; all real styles are scoped under .ks-lesson) */
+    html, body { margin: 0; padding: 0; background: #faf6f1; }
+  </style>
+</head>
+<body>
+<div class="ks-lesson ks-illustrations" data-demo="day1">
+  <!--
+    Day 1 Interactive Coded Illustrations (Preview Only)
+    - Self-contained HTML/CSS/JS (no external libs)
+    - All styles/scripts scoped under .ks-lesson
+    - Theme: Light Shiny Brown with Doodle accents
+  -->
+
+  <style>
+    .ks-lesson { font-family: Arial, sans-serif; color:#2b2119; line-height:1.35; }
+    .ks-lesson .wrap{ max-width:1000px; margin:24px auto; padding:0 12px; }
+
+    /* Doodle background (scoped) */
+    .ks-lesson .doodle-bg{
+      --ks-brown:#c28b5a; --ks-brown-dark:#8a5a2b; --ks-cream:#f7efe6; --ks-ink:#3a2a1e;
+      background:
+        radial-gradient(circle at 20px 20px, rgba(255,255,255,.7), rgba(255,255,255,0) 70px),
+        url("data:image/svg+xml;utf8,          <svg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'>            <defs>              <pattern id='p' width='28' height='28' patternUnits='userSpaceOnUse'>                <circle cx='2' cy='2' r='1.5' fill='%238a5a2b' opacity='0.12'/>                <circle cx='18' cy='10' r='1.5' fill='%238a5a2b' opacity='0.1'/>                <path d='M0 20 q7 -6 14 0 q7 6 14 0' fill='none' stroke='%23c28b5a' stroke-width='0.6' opacity='0.1'/>              </pattern>            </defs>            <rect width='140' height='140' fill='%23f7efe6'/>            <rect width='140' height='140' fill='url(%23p)'/>          </svg>");
+      border-radius:18px; padding:22px; border:1px solid #e8dccf;
+      box-shadow: 0 8px 18px rgba(138,90,43,.08), inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .ks-lesson h2{ color:#8a5a2b; margin:0 0 10px; font-size:20px; }
+    .ks-lesson h3{ color:#8a5a2b; margin:16px 0 8px; font-size:18px; }
+
+    .ks-lesson .grid{ display:grid; grid-template-columns:1fr; gap:16px; }
+    @media(min-width:880px){ .ks-lesson .grid{ grid-template-columns:1fr 1fr; } }
+
+    .ks-lesson .card{ background:#fff; border:1px solid #e6d8c7; border-radius:16px; padding:16px; box-shadow:0 6px 14px rgba(0,0,0,.05); }
+    .ks-lesson .controls{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 14px; }
+    .ks-lesson .btn{ background:#f5e7d7; color:#4a351f; border:1px solid #d9b995; border-radius:999px; padding:8px 12px; font-weight:700; cursor:pointer; }
+    .ks-lesson .btn[aria-pressed="true"], .ks-lesson .btn.active{ background:#c28b5a; color:#fff; border-color:#a8743f; }
+    .ks-lesson .small{ font-size:12px; color:#6a5a4a; }
+
+    .ks-lesson .stat{ display:inline-block; background:#fff7ef; border:1px dashed #d0a276; color:#5b3d21; padding:6px 10px; border-radius:10px; margin:4px 6px 0 0; }
+
+    /* SVG board styling */
+    .ks-lesson .board{ display:flex; align-items:center; justify-content:center; background:#fff; border:1px solid #ecdcca; border-radius:14px; min-height:260px; }
+    .ks-lesson svg{ max-width:100%; height:auto; }
+
+    /* Slider */
+    .ks-lesson .slider{ width:100%; }
+    .ks-lesson input[type=range]{ width:100%; accent-color:#c28b5a; }
+
+    /* Canvas area */
+    .ks-lesson .canvas-wrap{ background:#fff; border:1px solid #ecdcca; border-radius:14px; display:flex; align-items:center; justify-content:center; min-height:260px; }
+
+    .ks-lesson .legend{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .ks-lesson .legend .dot{ width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:6px; border:1px solid rgba(0,0,0,.15); }
+    .ks-lesson .legend .proton{ background:#ffbfa0; }
+    .ks-lesson .legend .neutron{ background:#bcd6ff; }
+    .ks-lesson .legend .electron{ background:#c0ffd1; }
+  </style>
+
+  <div class="wrap doodle-bg">
+    <h2>Interactive Illustrations – Day 1: Isotopes</h2>
+    <p class="small">All widgets are self-contained and Blogger-compatible. Colors and scripts are scoped to <code>.ks-lesson</code>.</p>
+
+    <div class="grid">
+      <!-- 1) Hydrogen Isotopes Interactive (SVG) -->
+      <div class="card" id="hydrogen-widget">
+        <h3>💧 Hydrogen Isotopes</h3>
+        <div class="controls" role="group" aria-label="Hydrogen isotopes selector">
+          <button class="btn" data-iso="H-1" aria-pressed="true">Protium (H-1)</button>
+          <button class="btn" data-iso="H-2" aria-pressed="false">Deuterium (H-2)</button>
+          <button class="btn" data-iso="H-3" aria-pressed="false">Tritium (H-3)</button>
+        </div>
+        <div class="board">
+          <svg viewBox="0 0 360 260" aria-label="Hydrogen atom diagram" role="img">
+            <defs>
+              <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" />
+              </filter>
+            </defs>
+            <!-- electron orbit -->
+            <circle cx="180" cy="130" r="90" fill="none" stroke="#ead2bb" stroke-width="2" stroke-dasharray="6 6"/>
+            <!-- electron -->
+            <circle id="h-electron" cx="270" cy="130" r="8" fill="#c0ffd1" stroke="#86b79a"/>
+
+            <!-- nucleus shell -->
+            <circle cx="180" cy="130" r="34" fill="#fff3e7" stroke="#d9b995"/>
+            <!-- protons & neutrons will be drawn here -->
+            <g id="h-nucleus"></g>
+
+            <!-- labels -->
+            <g font-size="12" fill="#5b3d21">
+              <text x="16" y="30">Protons: <tspan id="h-p">1</tspan></text>
+              <text x="16" y="50">Neutrons: <tspan id="h-n">0</tspan></text>
+              <text x="16" y="70">Electrons: <tspan id="h-e">1</tspan></text>
+              <text x="16" y="90">Mass number: <tspan id="h-m">1</tspan></text>
+            </g>
+          </svg>
+        </div>
+        <div class="legend">
+          <span class="stat"><span class="dot proton"></span>Proton</span>
+          <span class="stat"><span class="dot neutron"></span>Neutron</span>
+          <span class="stat"><span class="dot electron"></span>Electron</span>
+        </div>
+      </div>
+
+      <!-- 2) Carbon Isotopes Compare (Slider) -->
+      <div class="card" id="carbon-slider">
+        <h3>🌿 Carbon Isotopes Compare</h3>
+        <p class="small">Slide between C-12, C-13, and C-14. Protons stay 6; neutrons change.</p>
+        <input class="slider" type="range" min="12" max="14" step="1" value="12" aria-label="Select carbon mass number"/>
+        <div class="board">
+          <svg viewBox="0 0 360 260" aria-label="Carbon isotope diagram" role="img">
+            <!-- electron shells (simplified two rings) -->
+            <circle cx="180" cy="130" r="90" fill="none" stroke="#ead2bb" stroke-width="2" stroke-dasharray="6 6"/>
+            <circle cx="180" cy="130" r="55" fill="none" stroke="#ead2bb" stroke-width="2" stroke-dasharray="6 6"/>
+            <!-- electrons (simplified dots) -->
+            <g id="c-electrons"></g>
+            <!-- nucleus -->
+            <circle cx="180" cy="130" r="38" fill="#fff3e7" stroke="#d9b995"/>
+            <g id="c-nucleus"></g>
+            <!-- labels -->
+            <g font-size="12" fill="#5b3d21">
+              <text x="16" y="30">Protons: <tspan id="c-p">6</tspan></text>
+              <text x="16" y="50">Neutrons: <tspan id="c-n">6</tspan></text>
+              <text x="16" y="70">Electrons: <tspan id="c-e">6</tspan></text>
+              <text x="16" y="90">Mass number: <tspan id="c-m">12</tspan></text>
+              <text x="16" y="112">Chemistry note: same protons & electrons → same chemical properties.</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 3) Build-an-Atom (Canvas) -->
+      <div class="card" id="build-atom">
+        <h3>🧲 Build-an-Atom (Carbon base)</h3>
+        <div class="controls" role="group" aria-label="Neutron controls for carbon">
+          <button class="btn" data-action="minus">− Neutron</button>
+          <span class="stat">Neutrons: <span id="ba-n">6</span></span>
+          <button class="btn" data-action="plus">+ Neutron</button>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="atomCanvas" width="360" height="260" aria-label="Build an atom canvas" role="img"></canvas>
+        </div>
+        <div class="legend">
+          <span class="stat">Atomic number (Z): <span id="ba-z">6</span></span>
+          <span class="stat">Mass number (A): <span id="ba-a">12</span></span>
+          <span class="stat" id="ba-stability">Stability: Stable</span>
+        </div>
+        <p class="small">Tip: For carbon, A=12 or 13 are stable; A=14 is radioactive.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const root = document.querySelector('.ks-lesson.ks-illustrations');
+    if(!root) return;
+
+    /* Utility: create proton/neutron dot */
+    function makeNP(x, y, type){
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', 8);
+      if(type==='p'){ c.setAttribute('fill','#ffbfa0'); c.setAttribute('stroke','#c38f74'); }
+      else { c.setAttribute('fill','#bcd6ff'); c.setAttribute('stroke','#8aa8d0'); }
+      c.setAttribute('filter','url(#soft)');
+      c.setAttribute('data-type', type);
+      c.setAttribute('tabindex','0');
+      c.setAttribute('aria-label', type==='p' ? 'proton' : 'neutron');
+      return c;
+    }
+
+    /* ========== 1) HYDROGEN WIDGET ========== */
+    (function(){
+      const widget = root.querySelector('#hydrogen-widget');
+      const nucleus = widget.querySelector('#h-nucleus');
+      const pEl = widget.querySelector('#h-p');
+      const nEl = widget.querySelector('#h-n');
+      const eEl = widget.querySelector('#h-e');
+      const mEl = widget.querySelector('#h-m');
+      const buttons = widget.querySelectorAll('button.btn');
+
+      const states = {
+        'H-1': {p:1,n:0,e:1},
+        'H-2': {p:1,n:1,e:1},
+        'H-3': {p:1,n:2,e:1}
+      };
+
+      function layoutNucleus(p, n){
+        nucleus.innerHTML = '';
+        const total = p + n; // arrange in small ring(s)
+        const R = 18; // radius within nucleus
+        for(let i=0;i<total;i++){
+          const ang = (i/total) * Math.PI*2;
+          const x = 180 + Math.cos(ang)*R;
+          const y = 130 + Math.sin(ang)*R;
+          const type = i < p ? 'p' : 'n';
+          nucleus.appendChild(makeNP(x,y,type));
+        }
+      }
+
+      function setIso(key){
+        buttons.forEach(b=>{ const on = b.getAttribute('data-iso')===key; b.classList.toggle('active', on); b.setAttribute('aria-pressed', on?'true':'false'); });
+        const {p,n,e} = states[key];
+        pEl.textContent = p; nEl.textContent = n; eEl.textContent = e; mEl.textContent = p+n;
+        layoutNucleus(p,n);
+      }
+
+      buttons.forEach(b=> b.addEventListener('click', ()=> setIso(b.getAttribute('data-iso'))));
+      setIso('H-1');
+    })();
+
+    /* ========== 2) CARBON SLIDER ========== */
+    (function(){
+      const box = root.querySelector('#carbon-slider');
+      const slider = box.querySelector('input[type=range]');
+      const nEl = box.querySelector('#c-n');
+      const mEl = box.querySelector('#c-m');
+      const pEl = box.querySelector('#c-p');
+      const eEl = box.querySelector('#c-e');
+      const nucleus = box.querySelector('#c-nucleus');
+      const electronsG = box.querySelector('#c-electrons');
+
+      function drawElectrons(count){
+        electronsG.innerHTML = '';
+        const radii = [55, 90];
+        const perShell = [2, 4]; // simplified 6 electrons: 2 inner, 4 outer (not full chemistry model)
+        let idx=0;
+        for(let s=0;s<radii.length;s++){
+          const shellCount = perShell[s];
+          for(let i=0;i<shellCount;i++){
+            if(idx>=count) return;
+            const ang = (i/shellCount)*Math.PI*2 + (s===0?0:Math.PI/6);
+            const x = 180 + Math.cos(ang)*radii[s];
+            const y = 130 + Math.sin(ang)*radii[s];
+            const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',6);
+            c.setAttribute('fill','#c0ffd1'); c.setAttribute('stroke','#86b79a');
+            electronsG.appendChild(c); idx++;
+          }
+        }
+      }
+
+      function drawNucleus(p,n){
+        nucleus.innerHTML='';
+        const total = p+n;
+        const R = 22;
+        for(let i=0;i<total;i++){
+          const ang = (i/total)*Math.PI*2;
+          const r = R - (i%2?5:0);
+          const x = 180 + Math.cos(ang)*r;
+          const y = 130 + Math.sin(ang)*r;
+          const type = i < p ? 'p' : 'n';
+          nucleus.appendChild(makeNP(x,y,type));
+        }
+      }
+
+      function update(){
+        const mass = parseInt(slider.value,10);
+        const p = 6; const e = 6; const n = mass - p;
+        nEl.textContent = n; mEl.textContent = mass; pEl.textContent = p; eEl.textContent = e;
+        drawNucleus(p,n); drawElectrons(e);
+      }
+
+      slider.addEventListener('input', update);
+      update();
+    })();
+
+    /* ========== 3) BUILD-AN-ATOM (Canvas) ========== */
+    (function(){
+      const box = root.querySelector('#build-atom');
+      const canvas = box.querySelector('#atomCanvas');
+      const ctx = canvas.getContext('2d');
+      const zEl = box.querySelector('#ba-z');
+      const nEl = box.querySelector('#ba-n');
+      const aEl = box.querySelector('#ba-a');
+      const stabEl = box.querySelector('#ba-stability');
+      const buttons = box.querySelectorAll('button.btn');
+
+      const state = { p:6, n:6, e:6 };
+
+      function stability(A){
+        if(A===12 || A===13) return {text:'Stability: Stable', color:'#2f7d32'};
+        if(A===14) return {text:'Stability: Radioactive', color:'#b00020'};
+        return {text:'Stability: Unknown', color:'#6a5a4a'};
+      }
+
+      function draw(){
+        const {width:w, height:h} = canvas;
+        ctx.clearRect(0,0,w,h);
+        // backdrop (rounded rect polyfill for broad support)
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = '#ecdcca';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); const r=12;
+        ctx.moveTo(8+r,8);
+        ctx.arcTo(w-8,8,w-8,h-8,r);
+        ctx.arcTo(w-8,h-8,8,h-8,r);
+        ctx.arcTo(8,h-8,8,8,r);
+        ctx.arcTo(8,8,w-8,8,r);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+
+        // shells
+        ctx.strokeStyle = '#ead2bb';
+        ctx.setLineDash([6,6]);
+        ctx.beginPath(); ctx.arc(w/2,h/2,90,0,Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(w/2,h/2,55,0,Math.PI*2); ctx.stroke();
+        ctx.setLineDash([]);
+
+        // electrons (simplified: 2 inner, 4 outer)
+        const e = state.e;
+        const ePos = [];
+        const ring = [55, 90];
+        const per = [2,4];
+        let idx=0;
+        for(let s=0;s<ring.length;s++){
+          for(let i=0;i<per[s];i++){
+            if(idx>=e) break;
+            const ang = (i/per[s])*Math.PI*2 + (s?Math.PI/6:0);
+            ePos.push([w/2 + Math.cos(ang)*ring[s], h/2 + Math.sin(ang)*ring[s]]);
+            idx++;
+          }
+        }
+        ctx.fillStyle = '#c0ffd1'; ctx.strokeStyle = '#86b79a';
+        ePos.forEach(([x,y])=>{ ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
+
+        // nucleus
+        ctx.fillStyle = '#fff3e7'; ctx.strokeStyle = '#d9b995';
+        ctx.beginPath(); ctx.arc(w/2,h/2,38,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+        // arrange nucleons
+        const total = state.p + state.n;
+        for(let i=0;i<total;i++){
+          const ang = (i/total)*Math.PI*2;
+          const r = 22 - (i%2?5:0);
+          const x = w/2 + Math.cos(ang)*r;
+          const y = h/2 + Math.sin(ang)*r;
+          ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2);
+          if(i < state.p){ ctx.fillStyle = '#ffbfa0'; ctx.strokeStyle = '#c38f74'; }
+          else { ctx.fillStyle = '#bcd6ff'; ctx.strokeStyle = '#8aa8d0'; }
+          ctx.fill(); ctx.stroke();
+        }
+
+        // text labels
+        ctx.fillStyle = '#5b3d21';
+        ctx.font = '12px Arial';
+        ctx.fillText('Protons: '+state.p, 16, 22);
+        ctx.fillText('Neutrons: '+state.n, 16, 38);
+        ctx.fillText('Electrons: '+state.e, 16, 54);
+        ctx.fillText('Mass number: '+(state.p+state.n), 16, 70);
+      }
+
+      function renderHUD(){
+        zEl.textContent = state.p;
+        nEl.textContent = state.n;
+        const A = state.p + state.n; aEl.textContent = A;
+        const s = stability(A); stabEl.textContent = s.text; stabEl.style.background = '#fff7ef'; stabEl.style.borderColor = '#d0a276'; stabEl.style.color = s.color;
+      }
+
+      function clampN(n){ return Math.max(4, Math.min(10, n)); }
+
+      buttons.forEach(btn=> btn.addEventListener('click', ()=>{
+        const act = btn.getAttribute('data-action');
+        if(act==='plus') state.n = clampN(state.n+1);
+        else state.n = clampN(state.n-1);
+        draw(); renderHUD();
+      }));
+
+      draw(); renderHUD();
+    })();
+
+  })();
+  </script>
+</div>
+</body>
+</html>
