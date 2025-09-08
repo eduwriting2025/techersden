@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Linear Function Explorer — y = m x + b</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #fff;
+      color: #0f172a;
+    }
+    header { padding: 16px 18px 8px; }
+    h1 { font-size: 20px; margin: 0 0 6px; }
+    p.sub { margin: 0; color: #475569; }
+    .ui {
+      display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center;
+      background: #f1f5f9; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;
+      padding: .6rem .8rem;
+    }
+    .ui label { display: flex; align-items: center; gap: .5rem; font-size: .95rem; }
+    .ui input[type=range] { width: 180px; }
+    .ui input[type=number] { width: 70px; }
+    .wrap { display: grid; grid-template-columns: 1.3fr .9fr; gap: 12px; padding: 12px 14px; }
+    .panel { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff; }
+    .panel h2 {
+      font-size: 15px; margin: 0; padding: 10px 12px;
+      border-bottom: 1px solid #eef2f7; color: #334155; background: #f8fafc;
+    }
+    .panel .content { padding: 10px 12px; }
+    canvas { width: 100%; height: 420px; display: block; background: #ffffff; }
+    table { border-collapse: collapse; width: 100%; }
+    th,td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: center; font-variant-numeric: tabular-nums; }
+    tbody tr:nth-child(odd){ background:#fafafa; }
+    .eq { font-family: ui-monospace, Menlo, Consolas, monospace; color: #0f172a; }
+    footer { padding: 10px 16px; color: #64748b; font-size: 12px; }
+    .note {
+      font-size: 13px; color: #334155; background: #f8fafc;
+      border: 1px dashed #cbd5e1; padding: 8px 10px; border-radius: 8px; margin-top: 8px;
+    }
+    @media (max-width: 880px){ .wrap{grid-template-columns:1fr;} canvas{height:360px} }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Linear Function Explorer <span style="background:#e2e8f0;border-radius:8px;padding:2px 6px;font-size:12px;color:#334155">y = m x + b</span></h1>
+    <p class="sub">Move the sliders to see how slope (m) and intercept (b) change the graph and the table of values.</p>
+  </header>
+
+  <div class="ui">
+    <label>Slope m:
+      <input id="m" type="range" min="-5" max="5" step="0.1" value="1">
+      <input id="mnum" type="number" step="0.1" value="1">
+    </label>
+    <label>Intercept b:
+      <input id="b" type="range" min="-10" max="10" step="0.5" value="2">
+      <input id="bnum" type="number" step="0.5" value="2">
+    </label>
+    <label>Domain:
+      <input id="xmin" type="number" value="-10"> to
+      <input id="xmax" type="number" value="10">
+    </label>
+    <button id="reset">Reset</button>
+  </div>
+
+  <div class="wrap">
+    <div class="panel">
+      <h2>Graph</h2>
+      <div class="content"><canvas id="cv" width="900" height="480"></canvas></div>
+    </div>
+    <div class="panel">
+      <h2>Equation & Table</h2>
+      <div class="content">
+        <div class="eq" id="eq">y = 1·x + 2</div>
+        <div class="note">Try m = 0 (horizontal), m &gt; 0 (increasing), m &lt; 0 (decreasing). Change b to move the line up/down.</div>
+        <br>
+        <table>
+          <thead><tr><th>x</th><th>y = m·x + b</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <footer>Made for teaching: students can predict points, then verify on the graph and table.</footer>
+
+<script>
+(function(){
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  const m = document.getElementById('m'), mnum = document.getElementById('mnum');
+  const b = document.getElementById('b'), bnum = document.getElementById('bnum');
+  const xminEl = document.getElementById('xmin'), xmaxEl = document.getElementById('xmax');
+  const eq = document.getElementById('eq'); const tbody = document.getElementById('tbody');
+  const reset = document.getElementById('reset');
+
+  function syncPair(a,b){ a.addEventListener('input',()=>{ b.value = a.value; update(); }); b.addEventListener('input',()=>{ a.value = b.value; update(); }); }
+  syncPair(m,mnum); syncPair(b,bnum);
+
+  reset.addEventListener('click', ()=>{ m.value=1; mnum.value=1; b.value=2; bnum.value=2; xminEl.value=-10; xmaxEl.value=10; update(); });
+
+  function worldToScreen(x,y,box){
+    const {xmin,xmax,ymin,ymax} = box;
+    const px = (x - xmin)/(xmax - xmin)*cv.width;
+    const py = (1 - (y - ymin)/(ymax - ymin))*cv.height;
+    return [px,py];
+  }
+  function drawAxes(box){
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#94a3b8';
+    ctx.beginPath();
+    for(let x=Math.ceil(box.xmin); x<=box.xmax; x++){
+      const [px,_] = worldToScreen(x,0,box);
+      ctx.moveTo(px,0); ctx.lineTo(px,cv.height);
+    }
+    for(let y=Math.ceil(box.ymin); y<=box.ymax; y++){
+      const [_,py] = worldToScreen(0,y,box);
+      ctx.moveTo(0,py); ctx.lineTo(cv.width,py);
+    }
+    ctx.stroke();
+    ctx.strokeStyle = '#0f172a';
+    ctx.beginPath();
+    const [x0, y0] = worldToScreen(box.xmin,0,box);
+    const [x1, y1] = worldToScreen(box.xmax,0,box);
+    ctx.moveTo(x0,y0); ctx.lineTo(x1,y1);
+    const [xx0, yy0] = worldToScreen(0,box.ymin,box);
+    const [xx1, yy1] = worldToScreen(0,box.ymax,box);
+    ctx.moveTo(xx0,yy0); ctx.lineTo(xx1,yy1);
+    ctx.stroke();
+  }
+  function drawLine(m,b,box){
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#2563eb';
+    ctx.beginPath();
+    const xA = box.xmin, yA = m*xA + b;
+    const xB = box.xmax, yB = m*xB + b;
+    const [pA_x, pA_y] = worldToScreen(xA,yA,box);
+    const [pB_x, pB_y] = worldToScreen(xB,yB,box);
+    ctx.moveTo(pA_x,pA_y); ctx.lineTo(pB_x,pB_y);
+    ctx.stroke();
+  }
+  function drawPoints(m,b,box){
+    ctx.fillStyle = '#ef4444';
+    for(let x = box.xmin; x <= box.xmax; x += Math.max(1, Math.round((box.xmax-box.xmin)/10))){
+      const y = m*x + b; const [px,py] = worldToScreen(x,y,box);
+      ctx.beginPath(); ctx.arc(px,py,3.5,0,Math.PI*2); ctx.fill();
+    }
+  }
+  function table(mv,bv){
+    tbody.innerHTML = '';
+    for(let x=-5; x<=5; x++){
+      const y = mv*x + bv;
+      const tr = document.createElement('tr');
+      const td1 = document.createElement('td'); td1.textContent = x.toFixed(0);
+      const td2 = document.createElement('td'); td2.textContent = y.toFixed(2);
+      tr.appendChild(td1); tr.appendChild(td2); tbody.appendChild(tr);
+    }
+  }
+  function update(){
+    const mv = parseFloat(m.value), bv = parseFloat(b.value);
+    const xmin = parseFloat(xminEl.value), xmax = parseFloat(xmaxEl.value);
+    const ymin = -10, ymax = 10;
+    eq.textContent = `y = ${mv.toFixed(2)}·x + ${bv.toFixed(2)}`;
+
+    ctx.clearRect(0,0,cv.width,cv.height);
+    drawAxes({xmin,xmax,ymin,ymax});
+    drawLine(mv,bv,{xmin,xmax,ymin,ymax});
+    drawPoints(mv,bv,{xmin,xmax,ymin,ymax});
+    table(mv,bv);
+  }
+  update();
+})();</script>
+</body>
+</html>
