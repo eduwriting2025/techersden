@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quadratic Factoring — Area Model (AC Method)</title>
+<style>
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#fff;color:#0f172a}
+  header{padding:16px 18px 8px}
+  h1{font-size:20px;margin:0 0 6px}
+  p.sub{margin:0;color:#475569}
+  .wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:12px; padding:12px 14px}
+  .panel{border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#fff}
+  .panel h2{font-size:15px;margin:0;padding:10px 12px;border-bottom:1px solid #eef2f7;color:#334155;background:#f8fafc}
+  .panel .content{padding:10px 12px}
+  .ui{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;background:#f1f5f9;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:.6rem .8rem}
+  .ui label{display:flex;align-items:center;gap:.5rem;font-size:.95rem}
+  .ui input[type=number]{width:70px}
+  .grid{display:grid;grid-template-columns:120px 1fr;grid-template-rows:120px 1fr;gap:4px}
+  .cell{display:grid;place-items:center;border:1px solid #cbd5e1;background:#f8fafc;border-radius:8px;min-height:120px}
+  .big{font-size:22px;font-weight:700}
+  .mid{font-size:18px}
+  .small{font-size:14px;color:#334155}
+  table{border-collapse:collapse;width:100%}
+  th,td{border:1px solid #e2e8f0;padding:6px 8px;text-align:center;font-variant-numeric:tabular-nums}
+  tbody tr:nth-child(odd){background:#fafafa}
+  .note{font-size:13px;color:#334155;background:#f8fafc;border:1px dashed #cbd5e1;padding:8px 10px;border-radius:8px;margin-top:8px}
+  @media (max-width: 860px){ .wrap{grid-template-columns:1fr;} .grid{grid-template-columns:100px 1fr; grid-template-rows:100px 1fr;} .cell{min-height:100px} }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Quadratic Factoring <span style="background:#e2e8f0;border-radius:8px;padding:2px 6px;font-size:12px;color:#334155">Area Model (AC Method)</span></h1>
+    <p class="sub">Adjust a, b, c in ax² + bx + c. The area tiles help you find integers p and q with p + q = b and p·q = a·c.</p>
+  </header>
+
+  <div class="ui">
+    <label>a: <input id="a" type="number" value="1" step="1"></label>
+    <label>b: <input id="b" type="number" value="5" step="1"></label>
+    <label>c: <input id="c" type="number" value="6" step="1"></label>
+    <button id="preset1">(x+2)(x+3)</button>
+    <button id="preset2">(2x-3)(x+4)</button>
+    <button id="random">Random</button>
+  </div>
+
+  <div class="wrap">
+    <div class="panel">
+      <h2>Tiles (x by x, x by const, const by const)</h2>
+      <div class="content">
+        <div class="grid">
+          <div class="cell big" id="x2">x²</div>
+          <div class="cell mid" id="bx1">b₁·x</div>
+          <div class="cell mid" id="bx2">b₂·x</div>
+          <div class="cell small" id="c0">c₀</div>
+        </div>
+        <div class="note">We split the middle term into b₁x + b₂x where b₁ + b₂ = b and b₁·b₂ = a·c. Then use grouping to factor.</div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Expression &amp; Factors</h2>
+      <div class="content">
+        <div id="expr" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:16px"></div>
+        <div id="factors" style="margin-top:8px;font-size:16px;color:#2563eb"></div>
+        <table style="margin-top:10px">
+          <thead><tr><th>Pair (p, q)</th><th>p + q</th><th>p·q</th><th>Matches?</th></tr></thead>
+          <tbody id="pairs"></tbody>
+        </table>
+        <div class="note">If no integer pair exists, the quadratic doesn't factor nicely over ℤ. Try completing the square or the quadratic formula.</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const aEl = document.getElementById('a');
+  const bEl = document.getElementById('b');
+  const cEl = document.getElementById('c');
+  const expr = document.getElementById('expr');
+  const factors = document.getElementById('factors');
+  const pairs = document.getElementById('pairs');
+  const x2 = document.getElementById('x2'), bx1 = document.getElementById('bx1'), bx2 = document.getElementById('bx2'), c0 = document.getElementById('c0');
+
+  function formatQuad(a,b,c){
+    const A = (a===1) ? 'x²' : a+'x²';
+    const B = (b===0) ? '' : (b>0?'+ ':'- ') + Math.abs(b)+'x';
+    const C = (c===0) ? '' : (c>0?'+ ':'- ') + Math.abs(c);
+    return `${A} ${B} ${C}`.trim();
+  }
+
+  function gcd(x,y){ x=Math.abs(x); y=Math.abs(y); while(y){ const t=y; y=x%y; x=t; } return x||1; }
+
+  function factorByGrouping(a,b,c){
+    const AC = a*c;
+    const lim = Math.max(1, Math.abs(AC));
+    for(let p=-lim;p<=lim;p++){
+      const q = b - p;
+      if(p*q !== AC) continue;
+      const g1 = gcd(a,p), g2 = gcd(q,c);
+      const a1 = a/g1, p1 = p/g1;
+      const q1 = q/g2, c1 = c/g2;
+      if(p1 === q1){
+        const left  = `${g1===1?'':g1}x${g2>=0?'+':'-'}${Math.abs(g2)}`;
+        const right = `${p1===1?'':p1}x${c1>=0?'+':'-'}${Math.abs(c1)}`;
+        return [left, right];
+      }
+    }
+    return null;
+  }
+
+  function update(){
+    const a = parseInt(aEl.value||0,10);
+    const b = parseInt(bEl.value||0,10);
+    const c = parseInt(cEl.value||0,10);
+    expr.textContent = 'ax² + bx + c = ' + formatQuad(a,b,c);
+
+    x2.textContent = (a===1? '' : a) + 'x²';
+    const AC = a*c;
+
+    let rows = '';
+    let found = null;
+    const lim = Math.max(1, Math.abs(AC));
+    for(let p=-lim; p<=lim; p++){
+      const q = b - p;
+      const ok = (p*q === AC);
+      rows += `<tr><td>(${p}, ${q})</td><td>${p+q}</td><td>${p*q}</td><td>${ok?'✅':'—'}</td></tr>`;
+      if(ok && !found){ found = [p,q]; }
+    }
+    pairs.innerHTML = rows || '<tr><td colspan="4">No integer pairs (try different a,b,c)</td></tr>';
+    if(found){
+      const [p,q] = found;
+      bx1.textContent = `${p}·x`;
+      bx2.textContent = `${q}·x`;
+      c0.textContent = `${c}`;
+    }else{
+      bx1.textContent = '—'; bx2.textContent = '—'; c0.textContent = `${c}`;
+    }
+
+    const fact = factorByGrouping(a,b,c);
+    if(fact){
+      factors.textContent = '( ' + fact[0] + ' ) ( ' + fact[1] + ' )';
+    }else{
+      factors.textContent = 'Not easily factorable over integers.';
+    }
+  }
+
+  document.getElementById('preset1').addEventListener('click', ()=>{ aEl.value=1; bEl.value=5; cEl.value=6; update(); });
+  document.getElementById('preset2').addEventListener('click', ()=>{ aEl.value=2; bEl.value=5; cEl.value=-12; update(); });
+  document.getElementById('random').addEventListener('click', ()=>{
+    const A=[1,1,2,3][Math.floor(Math.random()*4)];
+    const p = Math.floor(Math.random()*9)-4, q = Math.floor(Math.random()*9)-4;
+    aEl.value=A; bEl.value=p+q; cEl.value=p*q; update();
+  });
+
+  ['a','b','c'].forEach(id=>document.getElementById(id).addEventListener('input', update));
+  update();
+})();</script>
+</body>
+</html>
